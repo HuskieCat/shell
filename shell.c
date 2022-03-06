@@ -8,25 +8,25 @@
 #define LSH_TOK_BUFSIZE 64
 #define LSH_TOK_DELIM " \t\r\n\a"
 
-void lsh_loop();
-char *lsh_read_line();
-char **lsh_split_line(char *line);
-int lsh_launch(char **args);
+void shell_loop();
+char *read_commandline();
+char **parse(char *line);
+int do_task(char **args);
 
 int lsh_cd(char **args);
 int lsh_help(char **args);
 int lsh_exit(char **args);
 int lsh_num_builtins();
-int lsh_execute(char **args);
+int run_command(char **args);
 
 int main(int argc, char** argv) 
 {
   printf(" /\\_/\\\n( o.o )\n > ^ <\n");
-  lsh_loop();
+  shell_loop();
   return 0;
 }
 
-void lsh_loop()
+void shell_loop()
 {
   char *line;
   char **args;
@@ -35,16 +35,16 @@ void lsh_loop()
   while(status)
   {
     printf("Tortoiseshell [Bradley Henderson]: ");
-    line = lsh_read_line();
-    args = lsh_split_line(line);
-    status = lsh_execute(args);
+    line = read_commandline();
+    args = **parse(line);
+    status = run_command(args);
 
     free(line);
     free(args);
   }
 }
 
-char *lsh_read_line()
+char *read_commandline()
 {
   char *line = NULL;
   ssize_t bufsize = 0;
@@ -55,7 +55,7 @@ char *lsh_read_line()
       exit(0);
     else
     {
-      perror("readline");
+      perror("Line read error");
       exit(1);
     }
   }
@@ -63,7 +63,7 @@ char *lsh_read_line()
   return line;
 }
 
-char **lsh_split_line(char *line)
+char **parse(char *line)
 {
   int bufsize = LSH_TOK_BUFSIZE, position = 0;
   char **tokens = malloc(bufsize * sizeof(char*));
@@ -97,7 +97,7 @@ char **lsh_split_line(char *line)
   return tokens;
 }
 
-int lsh_launch(char **args)
+int do_task(char **args)
 {
   pid_t pid, wpid;
   int status;
@@ -163,7 +163,7 @@ int lsh_exit(char **args)
   return 0;
 }
 
-int lsh_execute(char **args)
+int run_command(char **args)
 {
   int i;
   if(args[0] == NULL)
@@ -173,5 +173,5 @@ int lsh_execute(char **args)
       if(strcmp(args[0], builtin_str[i]) == 0)
         return (*builtin_func[i]) (args);
 
-  return lsh_launch(args);
+  return do_task(args);
 }
