@@ -36,7 +36,7 @@ void shell_loop()
   {
     printf("Tortoiseshell [Bradley Henderson]: ");
     line = read_commandline();
-    args = **parse(line);
+    args = parse(line);
     status = run_command(args);
 
     free(line);
@@ -71,7 +71,7 @@ char **parse(char *line)
 
   if(!tokens)
   {
-    fprintf(stderr, "lsh: allocation error\n");
+    fprintf(stderr, "ParseError: allocation error\n");
     exit(1);
   }
 
@@ -106,11 +106,11 @@ int do_task(char **args)
   if(pid == 0)
   {
     if(execvp(args[0], args) == -1)
-      perror("lsh");
+      perror("check1");
     exit(1);
   }
   else if(pid < 0)
-    perror("lsh");
+    perror("check2");
   else
   {
     while(!WIFEXITED(status) && !WIFSIGNALED(status))
