@@ -103,15 +103,16 @@ int do_task(char **args)
   int status;
 
   pid = fork();
-  if(pid == 0)
+  if(pid == 0) //Child
   {
     if(execvp(args[0], args) == -1)
-      perror("check1");
+      perror("ERROR"); //Invalid Command
+    printf("\n");
     exit(1);
   }
   else if(pid < 0)
     perror("check2");
-  else
+  else //Parent
   {
     while(!WIFEXITED(status) && !WIFSIGNALED(status))
       wpid = waitpid(pid, &status, WUNTRACED);
